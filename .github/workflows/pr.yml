@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  workflow_dispatch: {}
+
+name: "Pull Request"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "Test"
+
+    permissions:
+      contents: read
+      security-events: write
+
+    uses: ./.github/workflows/part_test.yml
+
+  licensing:
+    name: "Licensing"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_licensing.yml
+    with:
+      attest: false
+
+  docs:
+    name: "Docs"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_docs.yml
+    with:
+      attest: false
+
+  dependency-review:
+    name: "Dependency Review"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - name: 'Checkout Repository'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0

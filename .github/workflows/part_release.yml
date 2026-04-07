@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  workflow_call:
+    inputs:
+      releaseName:
+        required: true
+        type: string
+      stable:
+        required: false
+        type: boolean
+        default: false
+
+name: "Release"
+
+permissions:
+  contents: read
+
+jobs:
+  create:
+    name: Create Release
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+            
+      - name: "Download Docs Artifact"
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docs
+          path: .
+      - name: "Download SBoM Artifact"
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sbom
+          path: .
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RELEASE_NAME: ${{ inputs.releaseName }}
+        run: >-
+          gh release create
+          --repo "$REPO"
+          --title "$RELEASE_NAME"
+          --generate-notes
+          ${{ !inputs.stable && '--prerelease' || '' }}
+          "$RELEASE_NAME"
+          docs.tar.gz* sbom.*

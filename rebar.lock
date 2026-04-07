@@ -1,0 +1,8 @@
+{"1.2.0",
+[{<<"erlang_decimal">>,{pkg,<<"erlang_decimal">>,<<"0.6.5">>},0}]}.
+[
+{pkg_hash,[
+ {<<"erlang_decimal">>, <<"B143DE979658CB8FCB57D0F3111EF707C2EEC335CECBC826F3E799F514D7FD92">>}]},
+{pkg_hash_ext,[
+ {<<"erlang_decimal">>, <<"20D9240C93ECDC1CACD3DD3A6792324B4A6AB40BAB4DDAAB99D6D836FA17D262">>}]}
+].

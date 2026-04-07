@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  push:
+    branches:
+      - "main"
+
+name: "Main Branch"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "Test"
+
+    permissions:
+      contents: read
+      security-events: write
+
+    uses: ./.github/workflows/part_test.yml
+
+  licensing:
+    name: "Licensing"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_licensing.yml
+
+  docs:
+    name: "Docs"
+    
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_docs.yml

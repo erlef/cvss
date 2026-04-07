@@ -1,0 +1,17 @@
+%% SPDX-License-Identifier: Apache-2.0
+%% SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+{application, cvss, [
+    {description, "CVSS (Common Vulnerability Scoring System) library for Erlang"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        erlang_decimal
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/erlef/cvss"}]}
+]}.

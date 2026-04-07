@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+"
+
+name: "Unstable Tag"
+
+permissions:
+  contents: read
+
+jobs:
+  licensing:
+    name: "Licensing"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_licensing.yml
+
+  docs:
+    name: "Docs"
+    
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_docs.yml
+
+  release:
+    name: Create Release
+
+    needs: ["licensing", "docs"]
+
+    permissions:
+      contents: write
+
+    uses: ./.github/workflows/part_release.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
+      stable: false
+
+  publish:
+    name: "Publish"
+
+    uses: ./.github/workflows/part_publish.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
+    secrets:
+      HEX_API_KEY: "${{ secrets.HEX_API_KEY }}"

@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  workflow_call:
+    inputs:
+      attest:
+        description: "Attest the build"
+        default: true
+        type: boolean
+
+name: "Documentation"
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    name: "Generate"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - run: rebar3 ex_doc
+      - name: "Create Docs Archive"
+        run: "tar -czvf docs.tar.gz doc"
+      
+      - name: "Attest docs provenance"
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        id: attest-docs-provenance
+        if: "${{ inputs.attest }}"
+        with:
+          subject-path: 'docs.tar.gz'
+      - name: "Copy docs provenance"
+        if: "${{ inputs.attest }}"
+        run: cp "$ATTESTATION" docs.tar.gz.sigstore
+        env:
+          ATTESTATION: "${{ steps.attest-docs-provenance.outputs.bundle-path }}"
+
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: docs
+          path: docs.tar.gz*
