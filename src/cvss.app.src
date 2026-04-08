@@ -7,11 +7,10 @@
     {registered, []},
     {applications, [
         kernel,
-        stdlib,
-        erlang_decimal
+        stdlib
     ]},
     {env, []},
     {modules, []},
-    {licenses, ["Apache-2.0"]},
+    {licenses, ["Apache-2.0", "MIT"]},
     {links, [{"GitHub", "https://github.com/erlef/cvss"}]}
 ]}.

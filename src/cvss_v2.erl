@@ -446,9 +446,9 @@ requirement_coeff(high) -> ?D(<<"1.51">>);
 requirement_coeff(not_defined) -> ?ONE.
 
 exploitability_sub_score(AV, AC, Au) ->
-    decimal:mult(
-        decimal:mult(
-            decimal:mult(?D(20), av_coeff(AV)),
+    cvss_decimal:mult(
+        cvss_decimal:mult(
+            cvss_decimal:mult(?D(20), av_coeff(AV)),
             ac_coeff(AC)
         ),
         au_coeff(Au)
@@ -456,15 +456,15 @@ exploitability_sub_score(AV, AC, Au) ->
 
 base_score_from_components(Impact, Exploitability) ->
     FImpact =
-        case decimal:is_zero(Impact) of
+        case cvss_decimal:is_zero(Impact) of
             true -> ?ZERO;
             false -> ?D(<<"1.176">>)
         end,
-    Score = decimal:mult(
-        decimal:sub(
-            decimal:add(
-                decimal:mult(?D(<<"0.6">>), Impact),
-                decimal:mult(?D(<<"0.4">>), Exploitability)
+    Score = cvss_decimal:mult(
+        cvss_decimal:sub(
+            cvss_decimal:add(
+                cvss_decimal:mult(?D(<<"0.6">>), Impact),
+                cvss_decimal:mult(?D(<<"0.4">>), Exploitability)
             ),
             ?D(<<"1.5">>)
         ),
@@ -473,16 +473,16 @@ base_score_from_components(Impact, Exploitability) ->
     cvss_common:round_v1_v2(Score).
 
 calculate_base_score(#cvss_v2{av = AV, ac = AC, au = Au, c = C, i = I, a = A}) ->
-    Impact = decimal:mult(
+    Impact = cvss_decimal:mult(
         ?D(<<"10.41">>),
-        decimal:sub(
+        cvss_decimal:sub(
             ?ONE,
-            decimal:mult(
-                decimal:mult(
-                    decimal:sub(?ONE, impact_coeff(C)),
-                    decimal:sub(?ONE, impact_coeff(I))
+            cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:sub(?ONE, impact_coeff(C)),
+                    cvss_decimal:sub(?ONE, impact_coeff(I))
                 ),
-                decimal:sub(?ONE, impact_coeff(A))
+                cvss_decimal:sub(?ONE, impact_coeff(A))
             )
         )
     ),
@@ -494,9 +494,9 @@ calculate_temporal_score(#cvss_v2{e = E, rl = RL, rc = RC}, BaseScore) ->
         false ->
             BaseScore;
         true ->
-            Score = decimal:mult(
-                decimal:mult(
-                    decimal:mult(BaseScore, exploitability_coeff(E)),
+            Score = cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:mult(BaseScore, exploitability_coeff(E)),
                     remediation_level_coeff(RL)
                 ),
                 report_confidence_coeff(RC)
@@ -519,21 +519,23 @@ calculate_environmental_score(
             AdjustedImpact =
                 cvss_common:dmin(
                     ?D(10),
-                    decimal:mult(
+                    cvss_decimal:mult(
                         ?D(<<"10.41">>),
-                        decimal:sub(
+                        cvss_decimal:sub(
                             ?ONE,
-                            decimal:mult(
-                                decimal:mult(
-                                    decimal:sub(
-                                        ?ONE, decimal:mult(impact_coeff(C), requirement_coeff(CR))
+                            cvss_decimal:mult(
+                                cvss_decimal:mult(
+                                    cvss_decimal:sub(
+                                        ?ONE,
+                                        cvss_decimal:mult(impact_coeff(C), requirement_coeff(CR))
                                     ),
-                                    decimal:sub(
-                                        ?ONE, decimal:mult(impact_coeff(I), requirement_coeff(IR))
+                                    cvss_decimal:sub(
+                                        ?ONE,
+                                        cvss_decimal:mult(impact_coeff(I), requirement_coeff(IR))
                                     )
                                 ),
-                                decimal:sub(
-                                    ?ONE, decimal:mult(impact_coeff(A), requirement_coeff(AR))
+                                cvss_decimal:sub(
+                                    ?ONE, cvss_decimal:mult(impact_coeff(A), requirement_coeff(AR))
                                 )
                             )
                         )
@@ -545,19 +547,19 @@ calculate_environmental_score(
             AdjustedBase = base_score_from_components(AdjustedImpact, Exploitability),
             AdjustedTemporal =
                 cvss_common:round_v1_v2(
-                    decimal:mult(
-                        decimal:mult(
-                            decimal:mult(AdjustedBase, exploitability_coeff(E)),
+                    cvss_decimal:mult(
+                        cvss_decimal:mult(
+                            cvss_decimal:mult(AdjustedBase, exploitability_coeff(E)),
                             remediation_level_coeff(RL)
                         ),
                         report_confidence_coeff(RC)
                     )
                 ),
-            Score = decimal:mult(
-                decimal:add(
+            Score = cvss_decimal:mult(
+                cvss_decimal:add(
                     AdjustedTemporal,
-                    decimal:mult(
-                        decimal:sub(?D(10), AdjustedTemporal),
+                    cvss_decimal:mult(
+                        cvss_decimal:sub(?D(10), AdjustedTemporal),
                         cdp_coeff(CDP)
                     )
                 ),

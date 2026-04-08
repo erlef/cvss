@@ -31,22 +31,22 @@ Convert a number to a decimal value.
 {85, -2}
 ```
 """.
--spec d(number() | binary()) -> decimal:decimal().
+-spec d(number() | binary()) -> cvss_decimal:decimal().
 d(Value) when is_float(Value) ->
-    decimal:to_decimal(Value, ?DECIMAL_OPTS);
+    cvss_decimal:to_decimal(Value, ?DECIMAL_OPTS);
 d(Value) when is_integer(Value) ->
-    decimal:to_decimal(Value, ?DECIMAL_OPTS);
+    cvss_decimal:to_decimal(Value, ?DECIMAL_OPTS);
 d(Value) when is_binary(Value) ->
-    decimal:to_decimal(Value, ?DECIMAL_OPTS).
+    cvss_decimal:to_decimal(Value, ?DECIMAL_OPTS).
 
 -doc """
 Convert a decimal value to a float.
 """.
--spec to_float(decimal:decimal()) -> float().
+-spec to_float(cvss_decimal:decimal()) -> float().
 to_float({0, _}) ->
     0.0;
 to_float(D) ->
-    Bin = decimal:to_binary(D),
+    Bin = cvss_decimal:to_binary(D),
     case binary:match(Bin, <<".">>) of
         nomatch ->
             float(binary_to_integer(Bin));
@@ -69,9 +69,9 @@ Uses decimal arithmetic for precision.
 {32, -1}
 ```
 """.
--spec round_v1_v2(decimal:decimal()) -> decimal:decimal().
+-spec round_v1_v2(cvss_decimal:decimal()) -> cvss_decimal:decimal().
 round_v1_v2(Value) ->
-    decimal:round(round_half_up, Value, 1).
+    cvss_decimal:round(round_half_up, Value, 1).
 
 -doc """
 Round up to 1 decimal place (CVSS 3.x).
@@ -88,29 +88,29 @@ Uses decimal arithmetic for precision.
 {41, -1}
 ```
 """.
--spec roundup(decimal:decimal()) -> decimal:decimal().
+-spec roundup(cvss_decimal:decimal()) -> cvss_decimal:decimal().
 roundup(Value) ->
     %% "Round up" means: if there's any fractional part beyond 1 decimal,
     %% round up to next 0.1. This is ceiling at 1 decimal place.
-    Rounded = decimal:round(round_down, Value, 1),
-    case decimal:cmp(Value, Rounded, ?DECIMAL_OPTS) of
+    Rounded = cvss_decimal:round(round_down, Value, 1),
+    case cvss_decimal:cmp(Value, Rounded, ?DECIMAL_OPTS) of
         0 -> Rounded;
-        1 -> decimal:add(Rounded, {1, -1});
+        1 -> cvss_decimal:add(Rounded, {1, -1});
         -1 -> Rounded
     end.
 
 -doc "Return the smaller of two decimals.".
--spec dmin(decimal:decimal(), decimal:decimal()) -> decimal:decimal().
+-spec dmin(cvss_decimal:decimal(), cvss_decimal:decimal()) -> cvss_decimal:decimal().
 dmin(A, B) ->
-    case decimal:cmp(A, B, ?DECIMAL_OPTS) of
+    case cvss_decimal:cmp(A, B, ?DECIMAL_OPTS) of
         1 -> B;
         _ -> A
     end.
 
 -doc "Return the larger of two decimals.".
--spec dmax(decimal:decimal(), decimal:decimal()) -> decimal:decimal().
+-spec dmax(cvss_decimal:decimal(), cvss_decimal:decimal()) -> cvss_decimal:decimal().
 dmax(A, B) ->
-    case decimal:cmp(A, B, ?DECIMAL_OPTS) of
+    case cvss_decimal:cmp(A, B, ?DECIMAL_OPTS) of
         -1 -> B;
         _ -> A
     end.
@@ -149,14 +149,14 @@ score_to_rating(Score) when Score >= 9.0, Score =< 10.0 ->
     critical.
 
 -doc "Decimal integer power: Base^N for non-negative integer N.".
--spec dpow(decimal:decimal(), non_neg_integer()) -> decimal:decimal().
+-spec dpow(cvss_decimal:decimal(), non_neg_integer()) -> cvss_decimal:decimal().
 dpow(_Base, 0) ->
     d(1);
 dpow(Base, N) when N > 0 ->
     dpow(Base, N, d(1)).
 
 dpow(_Base, 0, Acc) -> Acc;
-dpow(Base, N, Acc) -> dpow(Base, N - 1, decimal:mult(Acc, Base)).
+dpow(Base, N, Acc) -> dpow(Base, N - 1, cvss_decimal:mult(Acc, Base)).
 
 -doc """
 Parse a list of `Key:Value` binary pairs into a map using the given parse function.

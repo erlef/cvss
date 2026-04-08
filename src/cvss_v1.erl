@@ -416,17 +416,17 @@ td_coeff(high) -> ?D(1).
 calculate_base_score(#cvss_v1{av = AV, ac = AC, au = Au, c = C, i = I, a = A, ib = IB}) ->
     {ConfBias, IntegBias, AvailBias} = impact_bias(IB),
     ImpactScore =
-        decimal:add(
-            decimal:add(
-                decimal:mult(impact_coeff(C), ConfBias),
-                decimal:mult(impact_coeff(I), IntegBias)
+        cvss_decimal:add(
+            cvss_decimal:add(
+                cvss_decimal:mult(impact_coeff(C), ConfBias),
+                cvss_decimal:mult(impact_coeff(I), IntegBias)
             ),
-            decimal:mult(impact_coeff(A), AvailBias)
+            cvss_decimal:mult(impact_coeff(A), AvailBias)
         ),
-    Score = decimal:mult(
-        decimal:mult(
-            decimal:mult(
-                decimal:mult(?D(10), av_coeff(AV)),
+    Score = cvss_decimal:mult(
+        cvss_decimal:mult(
+            cvss_decimal:mult(
+                cvss_decimal:mult(?D(10), av_coeff(AV)),
                 ac_coeff(AC)
             ),
             au_coeff(Au)
@@ -440,9 +440,9 @@ calculate_temporal_score(#cvss_v1{e = E, rl = RL, rc = RC}, BaseScore) ->
         {undefined, undefined, undefined} ->
             BaseScore;
         _ ->
-            Score = decimal:mult(
-                decimal:mult(
-                    decimal:mult(BaseScore, exploitability_coeff(E)),
+            Score = cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:mult(BaseScore, exploitability_coeff(E)),
                     remediation_level_coeff(RL)
                 ),
                 report_confidence_coeff(RC)
@@ -455,11 +455,11 @@ calculate_environmental_score(#cvss_v1{cdp = CDP, td = TD}, TemporalScore) ->
         {undefined, undefined} ->
             TemporalScore;
         _ ->
-            Score = decimal:mult(
-                decimal:add(
+            Score = cvss_decimal:mult(
+                cvss_decimal:add(
                     TemporalScore,
-                    decimal:mult(
-                        decimal:sub(?D(10), TemporalScore),
+                    cvss_decimal:mult(
+                        cvss_decimal:sub(?D(10), TemporalScore),
                         cdp_coeff(CDP)
                     )
                 ),

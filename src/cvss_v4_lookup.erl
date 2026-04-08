@@ -23,7 +23,7 @@ EQ1-EQ6 are integer equivalence class values (0-2 each).
     non_neg_integer(),
     non_neg_integer()
 ) ->
-    decimal:decimal() | undefined.
+    cvss_decimal:decimal() | undefined.
 lookup(0, 0, 0, 0, 0, 0) -> ?D(<<"10.0">>);
 lookup(0, 0, 0, 0, 0, 1) -> ?D(<<"9.9">>);
 lookup(0, 0, 0, 0, 1, 0) -> ?D(<<"9.8">>);

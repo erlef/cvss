@@ -822,9 +822,12 @@ interpolate_score(BaseScore, #eff{} = E, EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) ->
                 0 ->
                     BaseScore;
                 _ ->
-                    MeanDistance = decimal:divide(NormSum, ?D(Count), ?DECIMAL_OPTS),
+                    MeanDistance = cvss_decimal:divide(NormSum, ?D(Count), ?DECIMAL_OPTS),
                     cvss_common:dmax(
-                        ?ZERO, decimal:round(round_half_up, decimal:sub(BaseScore, MeanDistance), 1)
+                        ?ZERO,
+                        cvss_decimal:round(
+                            round_half_up, cvss_decimal:sub(BaseScore, MeanDistance), 1
+                        )
                     )
             end
     end.
@@ -832,12 +835,12 @@ interpolate_score(BaseScore, #eff{} = E, EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) ->
 fold_eq_distance({undefined, _D, _Max}, Acc) ->
     Acc;
 fold_eq_distance({MSD, D, Max}, {Sum, N}) ->
-    case decimal:is_zero(Max) of
+    case cvss_decimal:is_zero(Max) of
         true ->
             {Sum, N};
         false ->
-            Percent = decimal:divide(D, Max, ?DECIMAL_OPTS),
-            {decimal:add(Sum, decimal:mult(MSD, Percent)), N + 1}
+            Percent = cvss_decimal:divide(D, Max, ?DECIMAL_OPTS),
+            {cvss_decimal:add(Sum, cvss_decimal:mult(MSD, Percent)), N + 1}
     end.
 
 %% Try all combinations of max composed vectors to find one where
@@ -879,35 +882,35 @@ find_first_valid(E, [{Max1, Max2, Max3EQ6, Max4, _Max5} | Rest]) ->
     {MaxVC, MaxVI, MaxVA, MaxCR, MaxIR, MaxAR} = Max3EQ6,
     {MaxSC, MaxSI, MaxSA} = Max4,
     Dists = [
-        decimal:sub(av_level(AV), av_level(MaxAV)),
-        decimal:sub(pr_level(PR), pr_level(MaxPR)),
-        decimal:sub(ui_level(UI), ui_level(MaxUI)),
-        decimal:sub(ac_level(AC), ac_level(MaxAC)),
-        decimal:sub(at_level(AT), at_level(MaxAT)),
-        decimal:sub(vc_level(VC), vc_level(MaxVC)),
-        decimal:sub(vi_level(VI), vi_level(MaxVI)),
-        decimal:sub(va_level(VA), va_level(MaxVA)),
-        decimal:sub(sc_level(SC), sc_level(MaxSC)),
-        decimal:sub(si_level(SI), si_level(MaxSI)),
-        decimal:sub(sa_level(SA), sa_level(MaxSA)),
-        decimal:sub(cr_level(CR), cr_level(MaxCR)),
-        decimal:sub(ir_level(IR), ir_level(MaxIR)),
-        decimal:sub(ar_level(AR), ar_level(MaxAR))
+        cvss_decimal:sub(av_level(AV), av_level(MaxAV)),
+        cvss_decimal:sub(pr_level(PR), pr_level(MaxPR)),
+        cvss_decimal:sub(ui_level(UI), ui_level(MaxUI)),
+        cvss_decimal:sub(ac_level(AC), ac_level(MaxAC)),
+        cvss_decimal:sub(at_level(AT), at_level(MaxAT)),
+        cvss_decimal:sub(vc_level(VC), vc_level(MaxVC)),
+        cvss_decimal:sub(vi_level(VI), vi_level(MaxVI)),
+        cvss_decimal:sub(va_level(VA), va_level(MaxVA)),
+        cvss_decimal:sub(sc_level(SC), sc_level(MaxSC)),
+        cvss_decimal:sub(si_level(SI), si_level(MaxSI)),
+        cvss_decimal:sub(sa_level(SA), sa_level(MaxSA)),
+        cvss_decimal:sub(cr_level(CR), cr_level(MaxCR)),
+        cvss_decimal:sub(ir_level(IR), ir_level(MaxIR)),
+        cvss_decimal:sub(ar_level(AR), ar_level(MaxAR))
     ],
     Opts = ?DECIMAL_OPTS,
-    case lists:all(fun(D) -> decimal:cmp(D, ?ZERO, Opts) >= 0 end, Dists) of
+    case lists:all(fun(D) -> cvss_decimal:cmp(D, ?ZERO, Opts) >= 0 end, Dists) of
         true ->
             [DAV, DPR, DUI, DAC, DAT, DVC, DVI, DVA, DSC, DSI, DSA, DCR, DIR, DAR] = Dists,
-            D1 = decimal:add(decimal:add(DAV, DPR), DUI),
-            D2 = decimal:add(DAC, DAT),
-            D3EQ6 = decimal:add(
-                decimal:add(
-                    decimal:add(decimal:add(decimal:add(DVC, DVI), DVA), DCR),
+            D1 = cvss_decimal:add(cvss_decimal:add(DAV, DPR), DUI),
+            D2 = cvss_decimal:add(DAC, DAT),
+            D3EQ6 = cvss_decimal:add(
+                cvss_decimal:add(
+                    cvss_decimal:add(cvss_decimal:add(cvss_decimal:add(DVC, DVI), DVA), DCR),
                     DIR
                 ),
                 DAR
             ),
-            D4 = decimal:add(decimal:add(DSC, DSI), DSA),
+            D4 = cvss_decimal:add(cvss_decimal:add(DSC, DSI), DSA),
             {D1, D2, D3EQ6, D4};
         false ->
             find_first_valid(E, Rest)
@@ -984,9 +987,9 @@ msd_eq3eq6(BaseScore, EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) ->
             Right = lookup_eq(EQ1, EQ2, EQ3 + 1, EQ4, EQ5, EQ6),
             case {Left, Right} of
                 {undefined, undefined} -> undefined;
-                {undefined, R} -> decimal:sub(BaseScore, R);
-                {L, undefined} -> decimal:sub(BaseScore, L);
-                {L, R} -> decimal:sub(BaseScore, cvss_common:dmax(L, R))
+                {undefined, R} -> cvss_decimal:sub(BaseScore, R);
+                {L, undefined} -> cvss_decimal:sub(BaseScore, L);
+                {L, R} -> cvss_decimal:sub(BaseScore, cvss_common:dmax(L, R))
             end;
         {1, 1} ->
             %% 11 -> 21
@@ -1007,7 +1010,7 @@ msd_eq3eq6(BaseScore, EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) ->
 msd(BaseScore, EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) ->
     case lookup_eq(EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) of
         undefined -> undefined;
-        LowerScore -> decimal:sub(BaseScore, LowerScore)
+        LowerScore -> cvss_decimal:sub(BaseScore, LowerScore)
     end.
 
 lookup_eq(EQ1, EQ2, EQ3, EQ4, EQ5, EQ6) when
