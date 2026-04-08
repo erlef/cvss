@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  workflow_call: {}
+
+name: "Rebar3 Dependency Submission"
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    name: "Submit"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@fe104658747b27e96e4f7e80cd0a94068e53901d # v2.16.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: erlef/rebar3-dependency-submission@cebc7659c61af8843b3a6ccae474bc4c410d0d67 # v0.1.1

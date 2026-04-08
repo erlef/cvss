@@ -40,3 +40,11 @@ jobs:
       attestations: write
 
     uses: ./.github/workflows/part_docs.yml
+
+  dependency_submission:
+    name: "Rebar3 Dependency Submission"
+
+    permissions:
+      contents: write
+
+    uses: ./.github/workflows/part_dependency_submission.yml
