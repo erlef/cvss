@@ -520,21 +520,21 @@ requirement_coeff(medium) -> ?ONE;
 requirement_coeff(low) -> ?D(<<"0.5">>).
 
 changed_impact_30(ISS) ->
-    decimal:sub(
-        decimal:mult(?D(<<"7.52">>), decimal:sub(ISS, ?D(<<"0.029">>))),
-        decimal:mult(
-            ?D(<<"3.25">>), cvss_common:dpow(decimal:sub(ISS, ?D(<<"0.02">>)), 15)
+    cvss_decimal:sub(
+        cvss_decimal:mult(?D(<<"7.52">>), cvss_decimal:sub(ISS, ?D(<<"0.029">>))),
+        cvss_decimal:mult(
+            ?D(<<"3.25">>), cvss_common:dpow(cvss_decimal:sub(ISS, ?D(<<"0.02">>)), 15)
         )
     ).
 
 changed_impact_31(ISS) ->
-    decimal:sub(
-        decimal:mult(?D(<<"7.52">>), decimal:sub(ISS, ?D(<<"0.029">>))),
-        decimal:mult(
+    cvss_decimal:sub(
+        cvss_decimal:mult(?D(<<"7.52">>), cvss_decimal:sub(ISS, ?D(<<"0.029">>))),
+        cvss_decimal:mult(
             ?D(<<"3.25">>),
             cvss_common:dpow(
-                decimal:sub(
-                    decimal:mult(ISS, ?D(<<"0.9731">>)),
+                cvss_decimal:sub(
+                    cvss_decimal:mult(ISS, ?D(<<"0.9731">>)),
                     ?D(<<"0.02">>)
                 ),
                 13
@@ -543,41 +543,41 @@ changed_impact_31(ISS) ->
     ).
 
 combine_scope_score(unchanged, Impact, Exploitability) ->
-    cvss_common:dmin(decimal:add(Impact, Exploitability), ?D(10));
+    cvss_common:dmin(cvss_decimal:add(Impact, Exploitability), ?D(10));
 combine_scope_score(changed, Impact, Exploitability) ->
     cvss_common:dmin(
-        decimal:mult(?D(<<"1.08">>), decimal:add(Impact, Exploitability)),
+        cvss_decimal:mult(?D(<<"1.08">>), cvss_decimal:add(Impact, Exploitability)),
         ?D(10)
     ).
 
 calculate_base_score(#cvss_v3{av = AV, ac = AC, pr = PR, ui = UI, s = S, c = C, i = I, a = A}) ->
-    ISS = decimal:sub(
+    ISS = cvss_decimal:sub(
         ?ONE,
-        decimal:mult(
-            decimal:mult(
-                decimal:sub(?ONE, cia_coeff(C)),
-                decimal:sub(?ONE, cia_coeff(I))
+        cvss_decimal:mult(
+            cvss_decimal:mult(
+                cvss_decimal:sub(?ONE, cia_coeff(C)),
+                cvss_decimal:sub(?ONE, cia_coeff(I))
             ),
-            decimal:sub(?ONE, cia_coeff(A))
+            cvss_decimal:sub(?ONE, cia_coeff(A))
         )
     ),
     Impact =
         case S of
             unchanged ->
-                decimal:mult(?D(<<"6.42">>), ISS);
+                cvss_decimal:mult(?D(<<"6.42">>), ISS);
             changed ->
                 changed_impact_30(ISS)
         end,
-    case decimal:cmp(Impact, ?ZERO, ?DECIMAL_OPTS) of
+    case cvss_decimal:cmp(Impact, ?ZERO, ?DECIMAL_OPTS) of
         -1 ->
             ?ZERO;
         0 ->
             ?ZERO;
         1 ->
-            Exploitability = decimal:mult(
-                decimal:mult(
-                    decimal:mult(
-                        decimal:mult(?D(<<"8.22">>), av_coeff(AV)),
+            Exploitability = cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:mult(
+                        cvss_decimal:mult(?D(<<"8.22">>), av_coeff(AV)),
                         ac_coeff(AC)
                     ),
                     pr_coeff(PR, S)
@@ -593,9 +593,9 @@ calculate_temporal_score(#cvss_v3{e = E, rl = RL, rc = RC}, BaseScore) ->
         false ->
             BaseScore;
         true ->
-            Score = decimal:mult(
-                decimal:mult(
-                    decimal:mult(BaseScore, exploit_maturity_coeff(E)),
+            Score = cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:mult(BaseScore, exploit_maturity_coeff(E)),
                     remediation_level_coeff(RL)
                 ),
                 report_confidence_coeff(RC)
@@ -646,14 +646,14 @@ calculate_environmental_score(#cvss_v3{version = Version} = Cvss) ->
 
     %% Calculate modified ISS (same formula for 3.0 and 3.1)
     MISS = cvss_common:dmin(
-        decimal:sub(
+        cvss_decimal:sub(
             ?ONE,
-            decimal:mult(
-                decimal:mult(
-                    decimal:sub(?ONE, decimal:mult(cia_coeff(MC), CR)),
-                    decimal:sub(?ONE, decimal:mult(cia_coeff(MI), IR))
+            cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:sub(?ONE, cvss_decimal:mult(cia_coeff(MC), CR)),
+                    cvss_decimal:sub(?ONE, cvss_decimal:mult(cia_coeff(MI), IR))
                 ),
-                decimal:sub(?ONE, decimal:mult(cia_coeff(MA), AR))
+                cvss_decimal:sub(?ONE, cvss_decimal:mult(cia_coeff(MA), AR))
             )
         ),
         ?D(<<"0.915">>)
@@ -663,7 +663,7 @@ calculate_environmental_score(#cvss_v3{version = Version} = Cvss) ->
     ModifiedImpact =
         case MS of
             unchanged ->
-                decimal:mult(?D(<<"6.42">>), MISS);
+                cvss_decimal:mult(?D(<<"6.42">>), MISS);
             changed ->
                 case Version of
                     '3.0' ->
@@ -673,16 +673,16 @@ calculate_environmental_score(#cvss_v3{version = Version} = Cvss) ->
                 end
         end,
 
-    case decimal:cmp(ModifiedImpact, ?ZERO, ?DECIMAL_OPTS) of
+    case cvss_decimal:cmp(ModifiedImpact, ?ZERO, ?DECIMAL_OPTS) of
         -1 ->
             ?ZERO;
         0 ->
             ?ZERO;
         1 ->
-            ModifiedExploitability = decimal:mult(
-                decimal:mult(
-                    decimal:mult(
-                        decimal:mult(?D(<<"8.22">>), av_coeff(MAV)),
+            ModifiedExploitability = cvss_decimal:mult(
+                cvss_decimal:mult(
+                    cvss_decimal:mult(
+                        cvss_decimal:mult(?D(<<"8.22">>), av_coeff(MAV)),
                         ac_coeff(MAC)
                     ),
                     pr_coeff(MPR, MS)
@@ -695,9 +695,9 @@ calculate_environmental_score(#cvss_v3{version = Version} = Cvss) ->
             RL = remediation_level_coeff(Cvss#cvss_v3.rl),
             RC = report_confidence_coeff(Cvss#cvss_v3.rc),
             cvss_common:roundup(
-                decimal:mult(
-                    decimal:mult(
-                        decimal:mult(ModifiedScore, E),
+                cvss_decimal:mult(
+                    cvss_decimal:mult(
+                        cvss_decimal:mult(ModifiedScore, E),
                         RL
                     ),
                     RC
