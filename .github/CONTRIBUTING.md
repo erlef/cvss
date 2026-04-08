@@ -20,12 +20,12 @@ Please note that this project is released with a
 [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this
 project you agree to abide by its terms.
 
-## Any contributions you make will be under the BSD-3-Clause License
+## Any contributions you make will be under the Apache-2.0 License
 
 When you submit code changes, your submissions are understood to be under the
-same [BSD-3-Clause](/LICENSES/BSD-3-Clause.txt)
+same [Apache-2.0](/LICENSES/Apache-2.0.txt)
 that covers the project. By contributing to this project, you agree that your
-contributions will be licensed under its BSD-3-Clause License.
+contributions will be licensed under its Apache-2.0 License.
 
 ## Write bug reports with detail, background, and sample code
 
