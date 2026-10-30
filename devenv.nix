@@ -2,10 +2,18 @@
 # SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
 
 { pkgs, lib, config, inputs, ... }:
+let
+  # The Sphinx man builder fails to produce the "man" output.
+  reuse = pkgs.reuse.overridePythonAttrs (old: {
+    outputs = [ "out" ];
+    dontUseSphinx = true;
+  });
+in
 {
   packages = with pkgs; [
     git
     reuse
+    claude-code
   ];
 
   languages.erlang = {
@@ -36,9 +44,7 @@
     };
     reuse = {
       enable = true;
-      name = "REUSE Compliance";
-      entry = "reuse lint";
-      pass_filenames = false;
+      package = reuse;
     };
   };
 }
