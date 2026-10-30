@@ -16,7 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: "Setup BEAM"
-      uses: erlef/setup-beam@v1.18.2
+      uses: erlef/setup-beam@v1.24.1
       with:
         version-file: "${{ !inputs.otp-version && '.tool-versions' || '' }}"
         version-type: strict
