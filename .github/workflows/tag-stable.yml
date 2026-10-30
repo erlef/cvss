@@ -20,7 +20,7 @@ jobs:
       contents: read
       attestations: write
 
-    uses: ./.github/workflows/part_licensing.yml
+    uses: $/.github/workflows/part_licensing.yml
 
   docs:
     name: "Docs"
@@ -30,7 +30,7 @@ jobs:
       contents: read
       attestations: write
 
-    uses: ./.github/workflows/part_docs.yml
+    uses: $/.github/workflows/part_docs.yml
 
   release:
     name: Create Release
@@ -40,7 +40,7 @@ jobs:
     permissions:
       contents: write
 
-    uses: ./.github/workflows/part_release.yml
+    uses: $/.github/workflows/part_release.yml
     with:
       releaseName: "${{ github.ref_name }}"
       stable: true
@@ -48,7 +48,7 @@ jobs:
   publish:
     name: "Publish"
 
-    uses: ./.github/workflows/part_publish.yml
+    uses: $/.github/workflows/part_publish.yml
     with:
       releaseName: "${{ github.ref_name }}"
     secrets:

@@ -34,7 +34,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-runtime-env
+      - uses: $/.github/actions/setup-runtime-env
 
       - run: rebar3 ex_doc
       - name: "Create Docs Archive"
