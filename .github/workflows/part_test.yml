@@ -21,11 +21,11 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: "Read .tool-versions"
@@ -46,14 +46,14 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-runtime-env
+      - uses: $/.github/actions/setup-runtime-env
 
       - run: rebar3 fmt --check
 
@@ -86,14 +86,14 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-runtime-env
+      - uses: $/.github/actions/setup-runtime-env
         with:
           otp-version: ${{ matrix.otp }}
           rebar3-version: ${{ needs.detectToolVersions.outputs.rebar3Version }}
@@ -109,14 +109,14 @@ jobs:
 
       - name: Send Coverage to Coveralls
         if: always()
-        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        uses: coverallsapp/github-action@v2.3.8
         with:
           file: "_build/test/covertool/cvss.covertool.xml"
           format: cobertura
           flag-name: ct-${{ matrix.name }}
           parallel: true
 
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      - uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-ct-${{ matrix.name }}
           path: "_build/test/cover/*"
@@ -132,7 +132,7 @@ jobs:
 
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+      uses: coverallsapp/github-action@v2.3.8
       with:
         parallel-finished: true
         carryforward: "ct-lowest,ct-latest,ct-main"
@@ -144,14 +144,14 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-runtime-env
+      - uses: $/.github/actions/setup-runtime-env
 
       - run: rebar3 lint
 
@@ -162,13 +162,13 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        uses: step-security/harden-runner@v2.22.1
         with:
           egress-policy: audit
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
-      - uses: ./.github/actions/setup-runtime-env
+      - uses: $/.github/actions/setup-runtime-env
 
       - run: rebar3 dialyzer

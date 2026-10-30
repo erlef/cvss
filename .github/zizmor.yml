@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+# .github/workflows/actions.lock pins every action to a commit.
+# zizmor does not read the lockfile yet, so allow tag refs.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
