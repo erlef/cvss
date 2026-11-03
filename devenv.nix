@@ -11,9 +11,7 @@ let
 in
 {
   packages = with pkgs; [
-    git
     reuse
-    claude-code
   ];
 
   languages.erlang = {
